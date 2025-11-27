@@ -1,11 +1,9 @@
+4. urls.py
+
+This is your routing layer — maps URLs to views.
+
 from django.urls import path
-from .views import (
-    BookListView,
-    BookDetailView,
-    BookCreateView,
-    BookUpdateView,
-    BookDeleteView
-)
+from .views import BookListView, BookDetailView, BookCreateView, BookUpdateView, BookDeleteView
 
 urlpatterns = [
     path('books/', BookListView.as_view(), name='book-list'),
