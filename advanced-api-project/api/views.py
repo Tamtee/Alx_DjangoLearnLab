@@ -19,8 +19,8 @@ class BookDetailView(generics.RetrieveAPIView):
 class BookCreateView(generics.CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminUser]
-
+    permission_classes = [IsAdminUser] # only admin can create
+    
     def perform_create(self, serializer):
         serializer.save()
 
