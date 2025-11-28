@@ -26,6 +26,8 @@
 - Method: POST
 - Permission: Admin users
 - Description: Create a new book with title, author, and publication year.
+- Notes: Uses `perform_create` hook for validation and saving
+
 
 ### 4. Update Book
 - URL: /api/books/<id>/update/

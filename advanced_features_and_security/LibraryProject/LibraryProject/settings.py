@@ -11,17 +11,16 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-TEMPLATES_DIR = BASE_DIR / 'templates'
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9pua%!i*(a8#3rpu(ko87t(2piftpl1s$^+#z1a8v7ks8apw_l'
+SECRET_KEY = 'django-insecure-boeeu*m1v58qfe&lp098k_c1wh*c*4zftsj(@jya4*u&4h@s9n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,9 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bookshelf',
-    "relationship_app",
-    "advanced_features_and_security"
+    'relationship_app',
 ]
+#
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -51,6 +52,18 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'LibraryProject.middleware.ContentSecurityPolicyMiddleware',  
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'LibraryProject.middleware.SecurityHeadersMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+   
+]
+
+   
+]
+
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
@@ -58,7 +71,7 @@ ROOT_URLCONF = 'LibraryProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -102,6 +115,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -125,9 +140,40 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = 'list_books'
-LOGOUT_REDIRECT_URL = 'login'
 
-AUTH_USER_MODEL = "advanced_features_and_security.CustomUser"
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# --------------------------------------------------
+# HTTPS / Security Settings
+# --------------------------------------------------
+
+# Redirect all HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = True
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Include all subdomains
+SECURE_HSTS_PRELOAD = True             # Enable browser preload lists
+
+# Secure cookies: only send over HTTPS
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Browser security headers
+X_FRAME_OPTIONS = "DENY"             # Prevent clickjacking
+SECURE_CONTENT_TYPE_NOSNIFF = True   # Prevent MIME type sniffing
+SECURE_BROWSER_XSS_FILTER = True     # Enable browser XSS filtering
+
+# CSRF trusted origins (for HTTPS)
+CSRF_TRUSTED_ORIGINS = [
+    "https://yourdomain.com",
+    "https://www.yourdomain.com"
+]
+
+# Production settings reminder
+DEBUG = False
+ALLOWED_HOSTS = ["yourdomain.com", "www.yourdomain.com"]
+
+# Secret key should come from environment variable in production
+import os
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-secret-key")

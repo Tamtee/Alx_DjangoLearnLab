@@ -1,69 +1,78 @@
-from rest_framework import generics, filters
-from rest_framework.permissions import AllowAny, IsAdminUser
+# api/views.py
+
+from rest_framework import generics, permissions, serializers, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Book
 from .serializers import BookSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+import datetime
 
-# List all books with filtering, searching, and ordering
+# -----------------------------
+# List all books
+# -----------------------------
 class BookListView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [AllowAny]
-
+    permission_classes = [permissions.AllowAny]  # Anyone can see the list
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['title', 'author__id', 'publication_year']
+    
+    # Allow filtering by title, author, or publication year
+    filterset_fields = ['title', 'author__name', 'publication_year']
+    
+    # Enable search by title or author name
     search_fields = ['title', 'author__name']
+    
+    # Enable ordering by title or publication_year
     ordering_fields = ['title', 'publication_year']
-    ordering = ['title']
+    
+    # Optional: filter dynamically by query params
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        author = self.request.query_params.get('author')
+        if author:
+            queryset = queryset.filter(author__name__icontains=author)
+        return queryset
 
-
+# -----------------------------
 # Retrieve a single book
+# -----------------------------
 class BookDetailView(generics.RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]  # Anyone can view
 
-
-# Create a book (Admin only)
+# -----------------------------
+# Create a new book
+# -----------------------------
 class BookCreateView(generics.CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]  # Only logged-in users
 
+    # Step 3 customization: prevent future publication year
     def perform_create(self, serializer):
-        """
-        Custom behavior during creation:
-        - Enforces that only admin can create
-        - Can add additional logic here (e.g., logging, notifications)
-        """
-        # Example: custom validation or preprocessing
-        if serializer.validated_data['publication_year'] < 1900:
-            raise serializers.ValidationError("Publication year cannot be before 1900")
-        
+        if serializer.validated_data['publication_year'] > datetime.datetime.now().year:
+            raise serializers.ValidationError("Publication year cannot be in the future.")
         serializer.save()
 
-
-# Update a book (Admin only)
+# -----------------------------
+# Update an existing book
+# -----------------------------
 class BookUpdateView(generics.UpdateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]  # Only logged-in users
 
     def perform_update(self, serializer):
-        """
-        Custom behavior during update:
-        - Validates data
-        - Can modify certain fields automatically before saving
-        """
-        # Example: automatically capitalize the book title
-        title = serializer.validated_data.get('title', None)
-        if title:
-            serializer.validated_data['title'] = title.title()
+        if serializer.validated_data.get('publication_year', None):
+            if serializer.validated_data['publication_year'] > datetime.datetime.now().year:
+                raise serializers.ValidationError("Publication year cannot be in the future.")
         serializer.save()
 
-
-# Delete a book (Admin only)
+# -----------------------------
+# Delete a book
+# -----------------------------
 class BookDeleteView(generics.DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]  # Only logged-in users
