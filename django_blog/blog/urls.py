@@ -1,6 +1,8 @@
-from django.urls import path
-from . import views
+from django.contrib import admin
+from django.urls import path, include
 
 urlpatterns = [
-    path('', views.home, name='blog-home'),
+    path('admin/', admin.site.urls),
+    path('accounts/', include('accounts.urls')),  # link the accounts app
+    path('', include('blog.urls')),  # your blog app
 ]

@@ -1,0 +1,15 @@
+<h2>Profile</h2>
+<form method="POST">
+    {% csrf_token %}
+    <p>Username: {{ user.username }}</p>
+    <p>Email: <input type="email" name="email" value="{{ user.email }}"></p>
+    <button type="submit">Update</button>
+</form>
+
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
