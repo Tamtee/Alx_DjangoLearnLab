@@ -1,6 +1,8 @@
 from rest_framework import viewsets, permissions
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
+from django.urls import path
+from .views import FeedView
 
 # Custom permission to allow only authors to edit/delete
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -28,3 +30,9 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+
+urlpatterns = [
+path('feed/', FeedView.as_view(), name='user-feed'),
+]

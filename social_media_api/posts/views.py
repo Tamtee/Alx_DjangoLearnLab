@@ -1,32 +1,20 @@
-from rest_framework import viewsets, permissions, filters
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-# Custom permission to allow only authors to edit/delete
-class IsAuthorOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.author == request.user
 
-# Post ViewSet
-class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAuthorOrReadOnly]
+from .models import Post
+from .serializers import PostSerializer
 
-    # Enable filtering by title and content
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'content']
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
 
-# Comment ViewSet
-class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAuthorOrReadOnly]
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+class FeedView(APIView):
+permission_classes = [IsAuthenticated]
+
+
+def get(self, request):
+following_users = request.user.following.all()
+posts = Post.objects.filter(author__in=following_users)
+serializer = PostSerializer(posts, many=True)
+return Response(serializer.data)

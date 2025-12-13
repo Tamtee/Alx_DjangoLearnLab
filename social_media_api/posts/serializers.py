@@ -1,16 +1,10 @@
 from rest_framework import serializers
-from .models import Post, Comment
+from .models import Post
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(read_only=True)
-    
-    class Meta:
-        model = Post
-        fields = '__all__'
+author = serializers.StringRelatedField()
 
-class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(read_only=True)
-    
-    class Meta:
-        model = Comment
-        fields = '__all__'
+
+class Meta:
+model = Post
+fields = ['id', 'author', 'content', 'created_at']
