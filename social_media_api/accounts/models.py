@@ -1,16 +1,17 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 class User(AbstractUser):
     bio = models.TextField(blank=True)
-    profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
 
-    # Users this user follows
+    # Users that THIS user follows
     following = models.ManyToManyField(
-        'self',
+        "self",
         symmetrical=False,
-        related_name='followers',
-        blank=True
+        related_name="followers",
+        blank=True,
     )
 
     def __str__(self):
