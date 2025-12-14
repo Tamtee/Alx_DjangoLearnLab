@@ -3,8 +3,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),  # Include the accounts app URLs
-    
-    path('api/', include('posts.urls')),  # Include the posts rou
-]
 
+    # Accounts endpoints
+    path('api/accounts/', include('accounts.urls')),
+
+    # Posts endpoints (feed, posts, etc.)
+    path('api/posts/', include('posts.urls')),
+]

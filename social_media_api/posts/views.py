@@ -8,7 +8,6 @@ from .serializers import PostSerializer
 
 
 
-
 class FeedView(APIView):
 permission_classes = [IsAuthenticated]
 
